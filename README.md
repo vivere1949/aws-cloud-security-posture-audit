@@ -102,6 +102,39 @@ The lab includes:
 - Enabled EBS encryption by default
 - Migrated the EC2 root volume to an encrypted EBS volume
 - Enabled automatic KMS key rotation
+## Findings and Remediations
+
+| Finding | Severity | Risk | Remediation | Verification | Status |
+|---|---|---|---|---|---|
+| EBS encryption disabled by default | High | New EBS volumes could be created unencrypted | Enabled EBS encryption by default | Prowler targeted scan | ✅ PASS |
+| Existing EC2 root EBS volume unencrypted | High | Disk data could be exposed if volume or snapshot is compromised | Replaced the root volume with an encrypted EBS volume | Prowler targeted scan | ✅ PASS |
+| IMDSv2 not enforced at account level | High | Temporary IAM credentials could be exposed through metadata-service abuse | Required IMDSv2 by default | Prowler targeted scan | ✅ PASS |
+| S3 account-level Public Access Block missing | High | Future buckets could accidentally become public | Enabled all four account-level Public Access Block settings | Prowler targeted scan | ✅ PASS |
+| S3 bucket did not enforce HTTPS | Medium | Data could be sent using insecure transport | Added a bucket policy denying insecure transport | Prowler targeted scan | ✅ PASS |
+| S3 bucket was not using KMS | Medium | Less control over encryption keys | Enabled SSE-KMS with a customer-managed KMS key | Prowler targeted scan | ✅ PASS |
+| KMS automatic rotation disabled | High | Cryptographic key material was not rotated automatically | Enabled automatic key rotation | Prowler targeted scan | ✅ PASS |
+| Root account had no MFA | High | Compromised root credentials could provide full account access | Enabled MFA on root account | AccountMFAEnabled = 1 | ✅ PASS |
+| IAM user had a long-lived access key | High | Leaked credentials could remain valid until revoked | Disabled and deleted the access key | Prowler targeted scan | ✅ PASS |
+| Terraform Security Group allowed SSH from 0.0.0.0/0 | High | SSH exposed to the entire Internet | Restricted SSH to a trusted /32 address | Checkov | ✅ PASS |
+| Terraform S3 bucket had no Public Access Block | High | IaC could deploy a publicly exposed bucket | Added Public Access Block configuration | Checkov | ✅ PASS |
+| Terraform S3 bucket had no versioning | Medium | Reduced protection from overwrite or deletion | Enabled versioning | Checkov | ✅ PASS |
+| Terraform S3 bucket did not use KMS | Medium | IaC did not enforce customer-managed encryption | Added SSE-KMS configuration | Checkov | ✅ PASS |
+| Terraform Security Group allowed unrestricted outbound traffic | Medium | Resource could communicate with any destination/protocol | Restricted outbound traffic to HTTPS/443 | Checkov | ✅ PASS |
+
+### Accepted Risks / Out of Scope
+
+Not every Prowler or Checkov finding was remediated.
+
+Some findings were classified as accepted risk or outside the scope of this lab, including:
+
+- Cross-region S3 replication
+- S3 event notifications
+- S3 lifecycle configuration
+- S3 server access logging in the Terraform demonstration
+- AWS Organizations SCP controls
+- AWS Config organization-level controls
+- EC2 public IP required for the SSH-based lab
+- Hardware MFA for the temporary IAM test user
 
 ### IAM
 
