@@ -382,8 +382,69 @@ This demonstrates the use of a security gate before infrastructure deployment.
 - Git
 - GitHub
 - GitHub Actions
-
 ---
+
+## Project Results
+
+### Prowler
+
+Initial EC2 scan:
+
+- 78 checks executed
+- 51 passed
+- 16 failed
+
+Important remediations included:
+
+- EBS encryption
+- IMDSv2 enforcement
+- S3 Public Access Block
+- SSE-KMS encryption
+- KMS key rotation
+- Root MFA
+- Removal of long-lived IAM credentials
+
+A later global AWS scan was used to triage remaining findings into:
+
+- Remediated
+- Accepted Risk
+- Not Applicable
+
+### Checkov
+
+Initial Terraform scan:
+
+- 8 passed
+- 11 failed
+
+Final Terraform scan:
+
+- 18 passed
+- 5 failed
+
+Important IaC remediations included:
+
+- Restricting SSH access
+- Restricting outbound traffic
+- Enabling S3 Public Access Block
+- Enabling S3 versioning
+- Enforcing SSE-KMS encryption
+
+### CI/CD
+
+GitHub Actions was configured as a security gate.
+
+Initial pipeline:
+
+- ❌ Failed because Checkov detected unresolved findings
+
+Final pipeline:
+
+- ✅ Terraform formatting passed
+- ✅ Terraform initialization passed
+- ✅ Terraform validation passed
+- ✅ Checkov security scan passed
+
 
 ## Lessons Learned
 
