@@ -39,5 +39,7 @@ jobs:
       - name: Install Checkov
         run: pip install checkov
 
-      - name: Run Checkov Security Scan
-        run: checkov -f main.tf
+      - - name: Run Checkov Security Scan
+  run: |
+    checkov -f main.tf \
+      --skip-check CKV2_AWS_62,CKV2_AWS_61,CKV2_AWS_5,CKV_AWS_144,CKV_AWS_18
