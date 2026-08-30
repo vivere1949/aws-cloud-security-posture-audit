@@ -13,7 +13,63 @@ Finding → Risk → Remediation → Verification → Evidence
 ---
 
 ## Architecture
+```mermaid
+flowchart TB
 
+    U[Developer / Security Engineer]
+
+    G[GitHub Repository]
+    GA[GitHub Actions<br/>Terraform Validate + Checkov]
+
+    subgraph AWS["AWS Cloud - eu-north-1"]
+
+        IAM[IAM<br/>Roles + Least Privilege + MFA]
+
+        subgraph VPC["VPC 10.0.0.0/16"]
+            IGW[Internet Gateway]
+
+            subgraph SUBNET["Public Subnet 10.0.1.0/24"]
+                EC2[EC2 Instance<br/>Amazon Linux 2023<br/>IMDSv2]
+                EBS[(Encrypted EBS Volume)]
+                SG[Security Group<br/>Restricted SSH]
+            end
+        end
+
+        S3[(S3 Bucket<br/>Versioning<br/>Public Access Block<br/>SSE-KMS)]
+
+        KMS[KMS Customer Managed Key]
+
+        CT[CloudTrail<br/>Multi-Region Trail]
+
+        LOGS[(CloudTrail Logs<br/>S3 Bucket)]
+    end
+
+    P[Prowler<br/>Cloud Security Audit]
+
+    TF[Terraform<br/>Infrastructure as Code]
+    CK[Checkov<br/>IaC Security Scan]
+
+    U --> G
+    G --> GA
+    GA --> TF
+    TF --> CK
+
+    IGW --> SUBNET
+    SG --> EC2
+    EC2 --> EBS
+
+    IAM --> EC2
+    EC2 --> S3
+    KMS --> S3
+
+    CT --> LOGS
+
+    P --> IAM
+    P --> EC2
+    P --> S3
+    P --> KMS
+    P --> CT
+```
 The lab includes:
 
 - AWS VPC
